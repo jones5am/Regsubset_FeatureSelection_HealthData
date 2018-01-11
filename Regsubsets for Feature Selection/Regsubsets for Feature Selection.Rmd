@@ -1,0 +1,48 @@
+---
+title: "Regsubsets for Feature Selection"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r}
+#Establish Libraries
+library(readxl)
+library(pastecs)
+library(leaps)
+library(ISLR)
+```
+
+
+```{r}
+#Read in the data set
+lowbwt <- read_xls('lowbwt.xls')
+
+#Search for Null values
+Null_Values <- sum(is.na(lowbwt))
+print(Null_Values)
+```
+
+There are no null values so we can continue with the analysis.
+```{r}
+#Forward Subsetting for Model Selection
+Forward <- regsubsets(LOW~., data = lowbwt, nbest =1, method = "forward")
+summary(Forward)
+plot(Forward, scale = 'adjr2')
+
+```
+
+```{r}
+#Backwards Subsetting for Model Selection
+Backward <- regsubsets(LOW~., data = lowbwt, nbest =1, method = "backward")
+summary(Backward)
+plot(Backward, scale = 'adjr2')
+```
+Running the model selection both ways produces the same "best" model as measured by Adjusted R squared.
+```{r}
+#Sequential Replacement for Model Selection
+Sequential_Replacement <- regsubsets(LOW~., data = lowbwt, nbest =1, method = "seqrep")
+summary(Sequential_Replacement)
+plot(Sequential_Replacement, scale = 'adjr2')
+```
+When running the model selection by Sequential replacement we get slightly different results. Both the AGE and UI variables have been dropped from the best model to retain the same reasonably high adjusted R squared of 0.67. With this limited analysis this would probably be the best model to move forward with. In a real world sense we would want to explore for multicollinearity and also asses if all variables are equally easy & timely to obtain. Notice that the difference between the "best" and "worst" model in this view is only 0.02 of R squared. If some variables were more readily available for every patient, it could be appropriate to use a model with a less than ideal R squared, because it will simply be applicable to more patients.
